@@ -75,10 +75,12 @@ directory.
 
 #### Route handler
 The route handler is a function that will be invoked when a resource match
-is found. It will receive the request data object, and the execution callback.
+is found. It will receive the request data object, which contains useful information
+which can be extracted from the event object, and the execution callback
+that can be invoked for async functions.
 
 ```javascript
-function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, callback}) {
+function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext, callback}) {
     /** function body */
 }
 ```
