@@ -71,6 +71,7 @@ class Router {
             queryStringParameters: {},
             headers: {},
             stageVariables: {},
+            requestContext: this.event.requestContext,
             callback: callback
         };
 
