@@ -1,0 +1,26 @@
+{
+  "name": "aws-api-lambda-scaffold",
+  "version": "0.6.10",
+  "description": "Micro framework for AWS API Gateway integration with AWS Lambda functions allowing you to use a Lambda like a micro service server",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/basiqio/aws-api-lambda-scaffold"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "api",
+    "gateway",
+    "function",
+    "router",
+    "framework"
+  ],
+  "author": "Basiq.io",
+  "license": "MIT"
+}
