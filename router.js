@@ -1,4 +1,4 @@
-const Response = require("./response");
+const Response = require("./response"), CustomResponse = require("./customResponse");
 
 /**
  * Router class that will handle the routing
@@ -59,11 +59,12 @@ class Router {
      * Method used to process the request according to the
      * route visited
      *
+     * @param responseInstance
      * @param callback
      */
-    process (callback) {
+    process (callback, responseInstance) {
         const requestEvent = this.event,
-              requestMethod = this.event.httpMethod;
+            requestMethod = this.event.httpMethod;
 
         let functionParameters = {
             requestBody: {},
@@ -79,9 +80,9 @@ class Router {
             || this.routes[requestEvent.resource][requestMethod] === undefined) {
 
             return callback(null, new Response({
-                error: true,
+                success: false,
                 errorMessage: 'Route not found: ' +
-                    requestEvent.resource + ' called with method: ' + requestMethod
+                requestEvent.resource + ' called with method: ' + requestMethod
             }, 404));
         }
 
@@ -105,12 +106,20 @@ class Router {
             functionParameters['stageVariables'] = requestEvent.stageVariables;
         }
 
-        const response = this.routes[requestEvent.resource][requestMethod](functionParameters);
+        if (responseInstance === undefined) {
+            responseInstance = new CustomResponse();
+        }
+
+        const response = this.routes[requestEvent.resource][requestMethod](functionParameters, responseInstance);
 
         if (response !== undefined && response !== null) {
-            if (!(response instanceof Response)) {
-                throw new Error("Handler return value must be an instance of the Response object");
+            if (response.headers === undefined
+                || response.isBase64Encoded === undefined
+                || response.statusCode === undefined) {
+                console.error("Response object: ", response);
+                throw new Error("Handler return value must be in a correct format");
             }
+
             callback(null, response);
         }
     }

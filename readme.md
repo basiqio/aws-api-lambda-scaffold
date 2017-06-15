@@ -58,16 +58,28 @@ The Router will handle the request and invoked the provided callback
 when you invoke the Router.process(callback) method. If a route is not
 found the Router will throw an error.
 
-To instantiate the Router use:
+To instantiate the Router:
 
 ```javascript
 const router = new scaffold.Router(event, context);
 ```
 
-And when using Responses
+And when instantiating a Response or CustomResponse
 
 ```javascript
-return new scaffold.Response(body, statusCode)
+return new scaffold.Response(body, statusCode, isBase64Encoded, headers)
+```
+
+```javascript
+const response = new scaffold.CustomResponse(headers, isBase64Encoded);
+
+// Send the response
+return response.send(body);
+```
+
+Both Response classes have a default header value of:
+```js
+{"Content-type": "application/json"}
 ```
 
 To see an example Lambda function, view the demo.js file in the package
@@ -77,10 +89,13 @@ directory.
 The route handler is a function that will be invoked when a resource match
 is found. It will receive the request data object, which contains useful information
 which can be extracted from the event object, and the execution callback
-that can be invoked for async functions.
+that can be invoked for async functions. It will also be injected with the
+CustomResponse instance that is passed to Router.process(ctx, responseInstance)
+or a newly instantiated CustomResponse class if none is passed to
+Router.process(ctx, response instance).
 
 ```javascript
-function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext, callback}) {
+function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext, callback}, response) {
     /** function body */
 }
 ```
@@ -97,8 +112,9 @@ function ({requestBody, queryStringParameters, pathParameters, headers, stageVar
 ```
 Or it should invoke the callback (ie. if the function is doing async work
 and has no return value).
-The handler should return a new Response instance:
-Response(body, statusCode = 200).
+The handler should return a Response instance a
+CustomResponse.send(body) object.
+
 
 Example API Gateway route test: http://i.imgur.com/dPkux1k.png
 

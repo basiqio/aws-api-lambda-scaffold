@@ -5,6 +5,7 @@ const   hmacSHA256 = require("crypto-js/hmac-sha256"),
         hexEncoding = require("crypto-js/enc-hex"),
         Router = require('./router'),
         Response = require('./response'),
+        CustomResponse = require('./customResponse'),
         AWS = require('aws-sdk');
 
 
@@ -26,7 +27,10 @@ const   Intercom = {
 
 exports.handler = (event, context, callback) => {
 
-    const router = new Router(event, context);
+    const   router = new Router(event, context),
+            response = new CustomResponse({
+               "Access-Control-Allow-Origin": "*"
+            });
 
     router.route(
         "/test/{id}",
@@ -45,7 +49,7 @@ exports.handler = (event, context, callback) => {
     router.route("/hash", "POST", function(request) {
         if (request.email === undefined) {
             return new Response({
-                error: true,
+                success: false,
                 errorMessage: "No email defined"
             }, 400);
         }
@@ -57,5 +61,9 @@ exports.handler = (event, context, callback) => {
 
     router.route("/external", "POST", externalHandler);
 
-    router.process(callback);
+    router.route("/test", "GET", function ({requestBody}, response) {
+        return response.send();
+    });
+
+    router.process(callback, response);
 };

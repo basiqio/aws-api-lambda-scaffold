@@ -3,11 +3,15 @@
  */
 class Response {
 
-    constructor(body = {}, statusCode = 200, base64 = false, headers = {"Content-type": "application/json"}) {
+    constructor(body = {}, statusCode = 200, headers = {"Content-type": "application/json"}, base64 = false) {
         this.isBase64Encoded = base64;
         this.statusCode = statusCode;
         this.headers = headers;
-        this.body = JSON.stringify(body);
+        if (body && Object.keys(body).length === 0) {
+            this.body = null;
+        } else {
+            this.body = JSON.stringify(body);
+        }
     }
 
 }
