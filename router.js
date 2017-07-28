@@ -89,7 +89,8 @@ class Router {
         }
 
         if (requestEvent.body && requestEvent.body !== null) {
-            if (requestEvent.headers && requestEvent.headers['Content-type'] === "application/x-www-form-urlencoded") {
+            // As headers are case insensitive they should be converted to lowercase before the check
+            if (requestEvent.headers && convertObjectKeysToLowercase(requestEvent.headers)['content-type'] === "application/x-www-form-urlencoded") {
                 try {
                     functionParameters['requestBody'] = qs.parse(requestEvent.body);
                 } catch (err) {
@@ -142,6 +143,24 @@ class Router {
         }
     }
 
+}
+
+/**
+ * Converts all of the object contents to lowercase, both keys and values
+ *
+ * @param object
+ * @returns {*}
+ */
+function convertObjectKeysToLowercase(object) {
+    if (!object) {
+        return object;
+    }
+
+    try {
+        return JSON.parse(JSON.stringify(object).toLowerCase());
+    } catch (err) {
+        return object;
+    }
 }
 
 module.exports = Router;
