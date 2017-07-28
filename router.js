@@ -1,4 +1,6 @@
-const Response = require("./response"), CustomResponse = require("./customResponse");
+const Response = require("./response"),
+    CustomResponse = require("./customResponse"),
+    qs = require("querystring");
 
 /**
  * Router class that will handle the routing
@@ -87,12 +89,22 @@ class Router {
         }
 
         if (requestEvent.body && requestEvent.body !== null) {
-            try {
-                functionParameters['requestBody'] = JSON.parse(requestEvent.body);
-            } catch (err) {
-                console.log("Error parsing request body: ", err, requestEvent.body);
+            if (requestEvent.headers && requestEvent.headers['Content-type'] === "application/x-www-form-urlencoded") {
+                try {
+                    functionParameters['requestBody'] = qs.parse(requestEvent.body);
+                } catch (err) {
+                    console.log("Error parsing request body from x-www-form-urlencoded : ", err, requestEvent.body);
 
-                functionParameters['requestBody'] = requestEvent.body;
+                    functionParameters['requestBody'] = requestEvent.body;
+                }
+            } else {
+                try {
+                    functionParameters['requestBody'] = JSON.parse(requestEvent.body);
+                } catch (err) {
+                    console.log("Error parsing request body from JSON: ", err, requestEvent.body);
+
+                    functionParameters['requestBody'] = requestEvent.body;
+                }
             }
         }
 
