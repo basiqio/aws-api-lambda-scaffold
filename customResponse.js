@@ -16,7 +16,7 @@ class CustomResponse {
     }
 
     send(body, statusCode = 200, headers) {
-        if (body && Object.keys(body).length === 0) {
+        if ((body && Object.keys(body).length === 0) || body === null || body === undefined) {
             body = null;
         } else {
             body = JSON.stringify(body);

@@ -87,7 +87,17 @@ class Router {
         }
 
         if (requestEvent.body && requestEvent.body !== null) {
-            functionParameters['requestBody'] = JSON.parse(requestEvent.body);
+            if (requestEvent.headers && requestEvent.headers['Content-type'] === "application/json") {
+                try {
+                    functionParameters['requestBody'] = JSON.parse(requestEvent.body);
+                } catch (err) {
+                    console.log("Error parsing request body: ", err, requestEvent.body);
+
+                    functionParameters['requestBody'] = requestEvent.body;
+                }
+            } else {
+                functionParameters['requestBody'] = requestEvent.body;
+            }
         }
 
         if (requestEvent.pathParameters && requestEvent.pathParameters !== null) {
