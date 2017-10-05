@@ -1,5 +1,5 @@
 const   assert = require('assert'),
-        externalHandler = require("../handlers/externalHandler");
+        externalHandler = require("../src/handlers/externalHandler");
 
 /**
  * A basic test that will check if the external handler will return a proper

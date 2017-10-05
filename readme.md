@@ -82,17 +82,31 @@ Both Response classes have a default header value of:
 {"Content-type": "application/json"}
 ```
 
+The benefits of using a custom response and passing it to the router is that
+you can share response data without having to write it multiple times.
+
 To see an example Lambda function, view the demo.js file in the package
 directory.
+
+#### Routes
+
+To add a route to the router after instantiation use the following
+
+```js
+router.route("/route/{param}", "GET", handler);
+```
+
+The route will match if the lambda is invoked trough API Gateway with the
+specified path, and the handler function will be invoked.
 
 #### Route handler
 The route handler is a function that will be invoked when a resource match
 is found. It will receive the request data object, which contains useful information
-which can be extracted from the event object, and the execution callback
+which can be extracted from the event object and the execution callback
 that can be invoked for async functions. It will also be injected with the
 CustomResponse instance that is passed to Router.process(ctx, responseInstance)
 or a newly instantiated CustomResponse class if none is passed to
-Router.process(ctx, response instance).
+Router.process(ctx, customResponseInstance).
 
 ```javascript
 function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext, callback}, response) {

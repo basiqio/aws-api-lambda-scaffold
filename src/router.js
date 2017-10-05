@@ -88,9 +88,14 @@ class Router {
             }, 404));
         }
 
+        const parsedContentType = parseContentType(requestEvent.headers);
+
+        functionParameters['charset'] = parsedContentType.charset;
+
         if (requestEvent.body && requestEvent.body !== null) {
+
             // As headers are case insensitive they should be converted to lowercase before the check
-            if (requestEvent.headers && convertObjectKeysToLowercase(requestEvent.headers)['content-type'] === "application/x-www-form-urlencoded") {
+            if (parsedContentType.contentType === "application/x-www-form-urlencoded") {
                 try {
                     functionParameters['requestBody'] = qs.parse(requestEvent.body);
                 } catch (err) {
@@ -161,6 +166,33 @@ function convertObjectKeysToLowercase(object) {
     } catch (err) {
         return object;
     }
+}
+
+/**
+ * Parses content type header to extract data and charset
+ *
+ * @param headers
+ * @returns {*}
+ */
+function parseContentType(headers) {
+    if (!headers) {
+        return false;
+    }
+
+    const contentTypeHeader = convertObjectKeysToLowercase(headers)['content-type'].split(";").map(value => value.trim()),
+        contentType = contentTypeHeader[0] ? contentTypeHeader[0] : false,
+        otherData = contentTypeHeader[1] ? contentTypeHeader[1] : false,
+        returnData = {contentType};
+
+    if (otherData) {
+        contentTypeHeader.shift();
+
+        contentTypeHeader.forEach(value => {
+            returnData[value.split("=")[0].trim().toLowerCase()] = value.split("=")[1].trim().toLowerCase();
+        });
+    }
+
+    return returnData;
 }
 
 module.exports = Router;
