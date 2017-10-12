@@ -90,12 +90,14 @@ class Router {
 
         const parsedContentType = parseContentType(requestEvent.headers);
 
-        functionParameters['charset'] = parsedContentType.charset;
+        if (parsedContentType && parsedContentType.charset) {
+            functionParameters['charset'] = parsedContentType.charset;
+        }
 
         if (requestEvent.body && requestEvent.body !== null) {
 
             // As headers are case insensitive they should be converted to lowercase before the check
-            if (parsedContentType.contentType === "application/x-www-form-urlencoded") {
+            if (parsedContentType && parsedContentType.contentType === "application/x-www-form-urlencoded") {
                 try {
                     functionParameters['requestBody'] = qs.parse(requestEvent.body);
                 } catch (err) {
@@ -179,8 +181,15 @@ function parseContentType(headers) {
         return false;
     }
 
-    const contentTypeHeader = convertObjectKeysToLowercase(headers)['content-type'].split(";").map(value => value.trim()),
-        contentType = contentTypeHeader[0] ? contentTypeHeader[0] : false,
+    let contentTypeHeader = convertObjectKeysToLowercase(headers)['content-type'];
+
+    if (!contentTypeHeader) {
+        return false;
+    }
+
+    contentTypeHeader = contentTypeHeader.split(";").map(value => value.trim());
+
+    const contentType = contentTypeHeader[0] ? contentTypeHeader[0] : false,
         otherData = contentTypeHeader[1] ? contentTypeHeader[1] : false,
         returnData = {contentType};
 
