@@ -1,6 +1,6 @@
 {
   "name": "aws-api-lambda-scaffold",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Micro framework for AWS API Gateway integration with AWS Lambda functions allowing you to use a Lambda like a micro service server",
   "main": "index.js",
   "dependencies": {},
