@@ -93,15 +93,28 @@ class Router {
       );
     }
 
-    const parsedContentType = parseContentType(requestEvent.headers);
+    let { contentType, charset, error } = parseContentType(requestEvent.headers);
 
-    if (parsedContentType && parsedContentType.charset) {
-      functionParameters["charset"] = parsedContentType.charset;
+    if (error) {
+      return callback(
+        null,
+        new Response(
+          {
+            success: false,
+            errorMessage: "Canot parse content type: " + error
+          },
+          400
+        )
+      );
+    }
+
+    if (contentType && charset) {
+      functionParameters["charset"] = charset;
     }
 
     if (requestEvent.body && requestEvent.body !== null) {
       // As headers are case insensitive they should be converted to lowercase before the check
-      if (parsedContentType && parsedContentType.contentType === "application/x-www-form-urlencoded") {
+      if (contentType === "application/x-www-form-urlencoded") {
         try {
           functionParameters["requestBody"] = qs.parse(requestEvent.body);
         } catch (err) {
@@ -141,7 +154,6 @@ class Router {
     }
 
     const response = this.routes[requestEvent.resource][requestMethod](functionParameters, responseInstance);
-
     if (response !== undefined && response !== null) {
       if (
         response.headers === undefined ||
@@ -157,64 +169,31 @@ class Router {
   }
 }
 
-/**
- * Converts all of the object contents to lowercase, both keys and values
- *
- * @param object
- * @returns {*}
- */
-function convertObjectKeysToLowercase(object) {
-  if (!object) {
-    return object;
+function parseContentType(headers) {
+  if (!headers) {
+    return { error: "Headers are not defined." };
   }
 
   try {
-    return JSON.parse(JSON.stringify(object).toLowerCase());
+    let lowercaseHeaders = JSON.parse(JSON.stringify(headers).toLowerCase());
+    if (!lowercaseHeaders["content-type"]) {
+      return { error: "Missing content-type header." };
+    }
+
+    let parts = lowercaseHeaders["content-type"].split(";").map(trim);
+
+    function charsetValue(value) {
+      let parts = value.split("=");
+      return parts.length == 2 && parts[0].trim() == "charset" ? parts[1].trim() : undefined;
+    }
+
+    return {
+      charset: parts.slice(1, parts.length).reduce(result, value => (result ? result : charsetValue(value)), undefined),
+      contentType: parts[0]
+    };
   } catch (err) {
-    return object;
+    return { error: err };
   }
-}
-
-/**
- * Parses content type header to extract data and charset
- *
- * @param headers
- * @returns {*}
- */
-function parseContentType(headers) {
-  if (!headers) {
-    return false;
-  }
-
-  let contentTypeHeader = convertObjectKeysToLowercase(headers)["content-type"];
-
-  if (!contentTypeHeader) {
-    return false;
-  }
-
-  contentTypeHeader = contentTypeHeader.split(";").map(value => value.trim());
-
-  const contentType = contentTypeHeader[0] ? contentTypeHeader[0] : false,
-    otherData = contentTypeHeader[1] ? contentTypeHeader[1] : false,
-    returnData = { contentType };
-
-  if (otherData) {
-    contentTypeHeader.shift();
-
-    contentTypeHeader.forEach(value => {
-      returnData[
-        value
-          .split("=")[0]
-          .trim()
-          .toLowerCase()
-      ] = value
-        .split("=")[1]
-        .trim()
-        .toLowerCase();
-    });
-  }
-
-  return returnData;
 }
 
 module.exports = Router;
