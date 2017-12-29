@@ -180,7 +180,7 @@ function parseContentType(headers) {
       return { error: "Missing content-type header." };
     }
 
-    let parts = lowercaseHeaders["content-type"].split(";").map(trim);
+    let parts = lowercaseHeaders["content-type"].split(";").map(function(i) {return i.trim()});
 
     function charsetValue(value) {
       let parts = value.split("=");
