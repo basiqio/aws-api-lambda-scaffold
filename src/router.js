@@ -184,7 +184,7 @@ function parseContentType(headers) {
 
     function charsetValue(value) {
       let parts = value.split("=");
-      return parts.length == 2 && parts[0].trim() == "charset" ? parts[1].trim() : undefined;
+      return parts.length === 2 && parts[0].trim() === "charset" ? parts[1].trim() : undefined;
     }
 
     return {
