@@ -188,7 +188,7 @@ function parseContentType(headers) {
     }
 
     return {
-      charset: parts.slice(1, parts.length).reduce(result, value => (result ? result : charsetValue(value)), undefined),
+      charset: parts.slice(1, parts.length).reduce((result, value) => (result ? result : charsetValue(value)), undefined),
       contentType: parts[0]
     };
   } catch (err) {
