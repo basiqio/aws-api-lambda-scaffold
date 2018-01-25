@@ -148,14 +148,39 @@ Middleware is one of those very flexible things allowing you to seperate
 your lambda properly by removing logging/authorization/etc... from your
 handler's business logic.
 
+If your handlers run sync code, you need to return the next(request) or
+assign it to a variable and then return the code. In case of async handlers
+the middleware *must NOT* return anything if you want to proceed further,
+otherwise the framework will use the returned value as the lambda execution
+result.
+
+Sync handler middleware
 ```javascript
-function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext, callback}, next) {
-    /** function body */
+function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext}, responseInstance, next) {
+    // If error you can return it and the execution will stop there
+    if (error) {
+        return response.send({success: false});
+    }
+
+    // If you want the middleware to resolve and progress invoke next(request);
+    return next(request);
+}
+```
+
+Async handler middleware
+```javascript
+function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext}, responseInstance, next) {
+    // If error you can return it and the execution will stop there
+    if (error) {
+        return response.send({success: false});
+    }
 
     // If you want the middleware to resolve and progress invoke next(request);
     next(request);
 }
 ```
+
+Example usage can be found in the demo.js file.
 
 #### Publishing your changes to the Lambda
 
