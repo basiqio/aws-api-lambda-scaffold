@@ -30,7 +30,7 @@ class CustomResponse {
         return {
             isBase64Encoded: this.isBase64Encoded,
             headers: headers,
-            statusCode: this.statusCode || statusCode,
+            statusCode: statusCode || this.statusCode,
             body: body
         };
     }

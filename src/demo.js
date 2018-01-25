@@ -41,10 +41,10 @@ exports.handler = (event, context, callback) => {
 
     const asyncRoleMiddleware = function (request, response, next) {
         if (!request.requestContext.authorizer || request.requestContext.authorizer.claims["role"] !== "admin") {
-            return new Response({
+            return request.callback(null, response.send({
                 success: false,
                 errorMessage: "Unauthorized"
-            })
+            }));
         }
 
         next(request);

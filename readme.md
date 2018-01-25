@@ -117,7 +117,7 @@ or a newly instantiated CustomResponse class if none is passed to
 Router.process(ctx, customResponseInstance).
 
 ```javascript
-function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext, callback}, response) {
+function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext}, response, callback) {
     /** function body */
 }
 ```
@@ -172,7 +172,8 @@ Async handler middleware
 function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext}, responseInstance, next) {
     // If error you can return it and the execution will stop there
     if (error) {
-        return response.send({success: false});
+        // End the lambda execution early due to an error by invoking the original callback to end lambda execution
+        return request.callback(null, response.send({success: false}));
     }
 
     // If you want the middleware to resolve and progress invoke next(request);
