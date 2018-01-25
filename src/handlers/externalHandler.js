@@ -7,9 +7,9 @@ const Response = require("../response");
  * @param callback
  * @returns {Response}
  */
-module.exports = function ({requestBody, callback}) {
+module.exports = function ({requestBody}, response, callback) {
 
     return new Response({
-        body: requestBody
+        requestBody: requestBody
     })
 };

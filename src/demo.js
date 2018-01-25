@@ -1,28 +1,15 @@
 /**
  * Import dependencies here
  */
-const   hmacSHA256 = require("crypto-js/hmac-sha256"),
-        hexEncoding = require("crypto-js/enc-hex"),
-        Router = require('./router'),
+const   Router = require('./router'),
         Response = require('./response'),
-        CustomResponse = require('./customResponse'),
-        AWS = require('aws-sdk');
+        CustomResponse = require('./customResponse');
 
 
 /**
  * Import handlers here
  */
-const   externalHandler = require("./handlers/externalHandler"),
-        fetchApplicationsHandler = require("./handlers/fetchApplicationsHandler"), // DynamoDB use-case
-        fetchUsersHandler = require("./handlers/fetchUsersHandler"); // Cognito use-case
-
-
-/**
- * Setup global variables here
- */
-const   Intercom = {
-    secret: 'INTERCOM SECRET'
-};
+const   externalHandler = require("./handlers/externalHandler");
 
 
 exports.handler = (event, context, callback) => {
@@ -32,32 +19,61 @@ exports.handler = (event, context, callback) => {
                "Access-Control-Allow-Origin": "*"
             });
 
-    router.route(
-        "/test/{id}",
-        "POST",
-        function ({requestBody, queryStringParameters, pathParameters, headers, callback}) {
-            return new Response({
-                requestBody, pathParameters, queryStringParameters, headers
-            })
-        }
-    );
-
-    router.route("/applications", "GET", fetchApplicationsHandler);
-
-    router.route("/users", "GET", fetchUsersHandler);
-
-    router.route("/hash", "POST", function(request) {
-        if (request.email === undefined) {
+    const roleMiddleware = function (request, response, next) {
+        if (!request.requestContext.authorizer || request.requestContext.authorizer.claims["role"] !== "admin") {
             return new Response({
                 success: false,
-                errorMessage: "No email defined"
-            }, 400);
+                errorMessage: "Unauthorized"
+            })
         }
 
-        return new Response({
-            hash: hmacSHA256(request.email, Intercom.secret).toString(hexEncoding)
-        });
-    });
+        return next(request);
+    };
+
+    const loggerMiddleware = function (request, response, next) {
+        const start = Date.now();
+
+        response = next(request);
+
+        //Log the duration = Date.now()-start;
+        return response;
+    };
+
+    const asyncRoleMiddleware = function (request, response, next) {
+        if (!request.requestContext.authorizer || request.requestContext.authorizer.claims["role"] !== "admin") {
+            return new Response({
+                success: false,
+                errorMessage: "Unauthorized"
+            })
+        }
+
+        next(request);
+    };
+
+    router.route(
+        "/async/{id}",
+        "POST",
+        function ({requestBody, queryStringParameters, pathParameters, headers}, response, callback) {
+            setTimeout(function () {
+                callback(response.send({
+                    pathParameters
+                }));
+            }, 1500);
+        },
+        [asyncRoleMiddleware]
+    );
+
+    router.route(
+        "/sync/{id}",
+        "POST",
+        function ({requestBody, queryStringParameters, pathParameters, headers}, response, callback) {
+            return response.send({
+                    pathParameters
+            });
+        },
+        [roleMiddleware, loggerMiddleware]  // Due to the async callbacky behavior of node, if you want to end the request
+                                            // from the before middleware, it should be located before.
+    );
 
     router.route("/external", "POST", externalHandler);
 

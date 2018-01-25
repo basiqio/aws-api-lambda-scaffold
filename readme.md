@@ -10,6 +10,14 @@ You need to setup AWS-CLI with your credentials.
 You need to install mocha for running tests
 *(npm install --global mocha)*
 
+# Features
+* Routing
+* Response transformation
+* Layered middleware
+
+# What's new
+v.2.0.0 - Added middleware, refactored code and project minification
+
 # API Gateway setup
 #### Creating a new endpoint
 When creating a new method for a resource endpoint check the "Use Lambda
@@ -93,7 +101,7 @@ directory.
 To add a route to the router after instantiation use the following
 
 ```js
-router.route("/route/{param}", "GET", handler);
+router.route("/route/{param}", "GET", handler, [middleware, middleware]);
 ```
 
 The route will match if the lambda is invoked trough API Gateway with the
@@ -134,6 +142,20 @@ Example API Gateway route test: http://i.imgur.com/dPkux1k.png
 
 Basic directory structure we recommend is having a separate directory for
 all the route handlers. (You can see an example in the package directory)
+
+#### Middleware
+Middleware is one of those very flexible things allowing you to seperate
+your lambda properly by removing logging/authorization/etc... from your
+handler's business logic.
+
+```javascript
+function ({requestBody, queryStringParameters, pathParameters, headers, stageVariables, requestContext, callback}, next) {
+    /** function body */
+
+    // If you want the middleware to resolve and progress invoke next(request);
+    next(request);
+}
+```
 
 #### Publishing your changes to the Lambda
 

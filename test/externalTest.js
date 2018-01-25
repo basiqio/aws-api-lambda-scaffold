@@ -9,13 +9,13 @@ describe("ExternalHandler", function () {
     describe("Returns request body when it's received", function () {
         it("should return the stringified object it has received in the response body", function () {
             const request = {
-                body: {
+                requestBody: {
                     test: "this",
                     is: true
                 }
             };
 
-            const response = externalHandler(request.body, function() {});
+            const response = externalHandler(request, function() {});
 
             assert.equal(JSON.stringify(request), response.body);
         })

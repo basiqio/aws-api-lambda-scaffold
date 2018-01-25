@@ -4,7 +4,7 @@
  */
 class CustomResponse {
 
-    constructor(headers, base64) {
+    constructor(headers, statusCode = 200, base64) {
         headers = Object.assign({}, {"Content-type": "application/json"}, headers);
 
         if (!base64) {
@@ -12,10 +12,11 @@ class CustomResponse {
         }
 
         this.isBase64Encoded = base64;
+        this.statusCode = statusCode;
         this.headers = headers;
     }
 
-    send(body, statusCode = 200, headers) {
+    send(body, statusCode, headers) {
         if ((body && Object.keys(body).length === 0) || body === null || body === undefined) {
             body = null;
         } else {
@@ -29,7 +30,7 @@ class CustomResponse {
         return {
             isBase64Encoded: this.isBase64Encoded,
             headers: headers,
-            statusCode: statusCode,
+            statusCode: this.statusCode || statusCode,
             body: body
         };
     }
