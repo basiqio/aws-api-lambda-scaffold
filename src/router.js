@@ -94,9 +94,9 @@ class Router {
       );
     }
 
-    let { contentType, charset, error } = parseContentType(requestEvent.headers);
+    let parsed = parseContentType(requestEvent.headers);
 
-    if (error) {
+    if (parsed.error) {
       return callback(
         null,
         new Response(
@@ -109,13 +109,13 @@ class Router {
       );
     }
 
-    if (contentType && charset) {
-      requestParameters["charset"] = charset;
+    if (parsed.contentType && parsed.charset) {
+      requestParameters["charset"] = parsed.charset;
     }
 
     if (requestEvent.body && requestEvent.body !== null) {
       // As headers are case insensitive they should be converted to lowercase before the check
-      if (contentType === "application/x-www-form-urlencoded") {
+      if (parsed.contentType === "application/x-www-form-urlencoded") {
         try {
           requestParameters["requestBody"] = qs.parse(requestEvent.body);
         } catch (err) {
@@ -206,30 +206,55 @@ function generateInvocationLayers(requestParameters, middlewareList, handler, re
  */
 function parseContentType(headers) {
   if (!headers) {
-    return { error: "Headers are not defined." };
+    return {};
   }
 
   try {
-    let lowercaseHeaders = JSON.parse(JSON.stringify(headers).toLowerCase());
-    if (!lowercaseHeaders["content-type"]) {
-      return { error: "Missing content-type header." };
+    let lowercase = JSON.parse(JSON.stringify(headers).toLowerCase());
+
+    if (!lowercase["content-type"]) {
+      return {};
     }
 
-    let parts = lowercaseHeaders["content-type"].split(";").map(function(i) {
-      return i.trim();
-    });
-
-    function charsetValue(value) {
+    const charset = value => {
       let parts = value.split("=");
-      return parts.length === 2 && parts[0].trim() === "charset" ? parts[1].trim() : undefined;
+      return parts.length === 2 && parts[0].trim() === "charset" ? { charset: parts[1].trim() } : {};
+    };
+
+    const contentType = value => {
+      return { contentType: value };
+    };
+
+    return lowercase["content-type"]
+      .split(";")
+      .map(i => i.trim())
+      .reduce((acc, part, index) => Object.assign(acc, index == 0 ? contentType(part) : charset(part)), {});
+  } catch (err) {
+    return { error: err };
+  }
+}
+
+function parseContentType(headers) {
+  if (!headers) {
+    return {};
+  }
+
+  try {
+    let lowercase = JSON.parse(JSON.stringify(headers).toLowerCase());
+
+    if (!lowercase["content-type"]) {
+      return {};
     }
 
-    return {
-      charset: parts
-        .slice(1, parts.length)
-        .reduce((result, value) => (result ? result : charsetValue(value)), undefined),
-      contentType: parts[0]
+    const charset = value => {
+      let parts = value.split("=");
+      return parts.length === 2 && parts[0].trim() === "charset" ? { charset: parts[1].trim() } : {};
     };
+
+    return lowercase["content-type"]
+      .split(";")
+      .map(i => i.trim())
+      .reduce((acc, part, index) => Object.assign(acc, index == 0 ? { contentType: value } : charset(part)), {});
   } catch (err) {
     return { error: err };
   }
