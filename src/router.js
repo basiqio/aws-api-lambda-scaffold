@@ -221,36 +221,6 @@ function parseContentType(headers) {
       return parts.length === 2 && parts[0].trim() === "charset" ? { charset: parts[1].trim() } : {};
     };
 
-    const contentType = value => {
-      return { contentType: value };
-    };
-
-    return lowercase["content-type"]
-      .split(";")
-      .map(i => i.trim())
-      .reduce((acc, part, index) => Object.assign(acc, index == 0 ? contentType(part) : charset(part)), {});
-  } catch (err) {
-    return { error: err };
-  }
-}
-
-function parseContentType(headers) {
-  if (!headers) {
-    return {};
-  }
-
-  try {
-    let lowercase = JSON.parse(JSON.stringify(headers).toLowerCase());
-
-    if (!lowercase["content-type"]) {
-      return {};
-    }
-
-    const charset = value => {
-      let parts = value.split("=");
-      return parts.length === 2 && parts[0].trim() === "charset" ? { charset: parts[1].trim() } : {};
-    };
-
     return lowercase["content-type"]
       .split(";")
       .map(i => i.trim())
