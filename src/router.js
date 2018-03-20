@@ -102,7 +102,7 @@ class Router {
         new Response(
           {
             success: false,
-            errorMessage: "Canot parse content type: " + error
+            errorMessage: "Cannot parse content type: " + parsed.error
           },
           400
         )
