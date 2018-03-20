@@ -3,7 +3,9 @@
   "version": "2.0.2",
   "description": "Micro framework for AWS API Gateway integration with AWS Lambda functions allowing you to use a Lambda like a micro service server",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "npm": "^5.7.1"
+  },
   "devDependencies": {},
   "scripts": {
     "test": "mocha test"

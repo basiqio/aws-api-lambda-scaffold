@@ -224,7 +224,7 @@ function parseContentType(headers) {
     return lowercase["content-type"]
       .split(";")
       .map(i => i.trim())
-      .reduce((acc, part, index) => Object.assign(acc, index == 0 ? { contentType: value } : charset(part)), {});
+      .reduce((acc, part, index) => Object.assign(acc, index == 0 ? { contentType: part } : charset(part)), {});
   } catch (err) {
     return { error: err };
   }
