@@ -34,7 +34,7 @@ Lambda Node.js support: http://www.whatdoeslambdasupport.com/
 #### Using npm
 
 ```sh
-npm i aws-api-lambda-scaffold
+npm i aws-api-lambda-scaffold-js
 ```
 
 Working with the framework
@@ -47,14 +47,14 @@ the entry and exit point for the application.
 Import the scaffold package:
 
 ```javascript
-const scaffold = require("aws-api-lambda-scaffold")
+const scaffold = require("aws-api-lambda-scaffold-js")
 ```
 
 Or import the Router and Response classes directly
 
 ```javascript
-const Router = require("aws-api-lambda-scaffold").Router,
-      Response = require("aws-api-lambda-scaffold").Response;
+const Router = require("aws-api-lambda-scaffold-js").Router,
+      Response = require("aws-api-lambda-scaffold-js").Response;
 ```
 
 #### Program flow
@@ -193,7 +193,7 @@ When you want to apply changes to the lambda you can run the publish.sh
 script from the package directory.
 
 ```sh
-./node_modules/aws-api-lambda-scaffold/publish.sh yourLambdaName
+./node_modules/aws-api-lambda-scaffold-js/publish.sh yourLambdaName
 ```
 
 (Replace yourLambdaName with your Lambda function name)
